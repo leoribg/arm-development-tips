@@ -1,12 +1,5 @@
 # Printf Cortex M0
 
-## Table of Contents
-
-- [About](#about)
-- [Getting Started](#getting_started)
-- [Usage](#usage)
-- [Contributing](../CONTRIBUTING.md)
-
 ## About <a name = "about"></a>
 
 Print debug messages over OpenOCD Debuuger (SWIO).
