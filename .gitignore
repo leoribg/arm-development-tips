@@ -7,3 +7,4 @@ codes/peripheral-drivers/.metadata/.plugins/com.st.stm32cube.ide.mcu.information
 codes/peripheral-drivers/.metadata/.plugins/org.eclipse.cdt.make.core/specs.c
 codes/peripheral-drivers/.metadata/.plugins/org.eclipse.cdt.make.core/specs.cpp
 codes/peripheral-drivers/.metadata/version.ini
+*.xmi
