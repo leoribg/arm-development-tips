@@ -1,0 +1,9 @@
+
+*.prefs
+*.log
+codes/peripheral-drivers/.metadata/.lock
+*.xml
+codes/peripheral-drivers/.metadata/.plugins/com.st.stm32cube.ide.mcu.informationcenter/2.0.100.202111091238
+codes/peripheral-drivers/.metadata/.plugins/org.eclipse.cdt.make.core/specs.c
+codes/peripheral-drivers/.metadata/.plugins/org.eclipse.cdt.make.core/specs.cpp
+codes/peripheral-drivers/.metadata/version.ini
