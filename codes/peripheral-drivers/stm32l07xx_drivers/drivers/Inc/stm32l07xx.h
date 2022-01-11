@@ -8,6 +8,8 @@
 #ifndef INC_STM32L07XX_H_
 #define INC_STM32L07XX_H_
 
+#include <stdint.h>
+
 /*
  *
  * */
@@ -167,5 +169,16 @@ typedef struct {
 #define	I2C1_PCLK_DI()		(RCC->APB1ENR &= ~(1 << 21)) /* Clear the I2C1EN bit */
 #define	I2C2_PCLK_DI()		(RCC->APB1ENR &= ~(1 << 22)) /* Clear the I2C2EN bit */
 #define	I2C3_PCLK_DI()		(RCC->APB1ENR &= ~(1 << 30)) /* Clear the I2C3EN bit */
+
+/*
+ * Generic MACROS
+ * */
+#define ENABLE 				1U
+#define DISABLE 			0U
+#define SET 				ENABLE
+#define CLEAR 				DISABLE
+#define GPIO_SET 			SET
+#define GPIO_CLEAR 			CLEAR
+
 
 #endif /* INC_STM32L07XX_H_ */
