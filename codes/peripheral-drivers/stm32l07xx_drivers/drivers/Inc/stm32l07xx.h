@@ -159,6 +159,16 @@ typedef struct {
 #define	GPIOH_PCLK_DI()		(RCC->IOPENR &= ~(1 << 7)) /* Clear the IOPH EN bit */
 
 /*
+ * MACROS for GPIO Reset Peripherals
+ * */
+#define	GPIOA_REG_RESET()		do{ (RCC->IOPRSTR |= (1 << 0)); (RCC->IOPRSTR &= ~(1 << 0)); } while(0) /* Set and clear the IOPA RST bit */
+#define	GPIOB_REG_RESET()		do{ (RCC->IOPRSTR |= (1 << 1)); (RCC->IOPRSTR &= ~(1 << 1)); } while(0) /* Set and clear the IOPB RST bit */
+#define	GPIOC_REG_RESET()		do{ (RCC->IOPRSTR |= (1 << 2)); (RCC->IOPRSTR &= ~(1 << 2)); } while(0) /* Set and clear the IOPC RST bit */
+#define	GPIOD_REG_RESET()		do{ (RCC->IOPRSTR |= (1 << 3)); (RCC->IOPRSTR &= ~(1 << 3)); } while(0) /* Set and clear the IOPD RST bit */
+#define	GPIOE_REG_RESET()		do{ (RCC->IOPRSTR |= (1 << 4)); (RCC->IOPRSTR &= ~(1 << 4)); } while(0) /* Set and clear the IOPE RST bit */
+#define	GPIOH_REG_RESET()		do{ (RCC->IOPRSTR |= (1 << 7)); (RCC->IOPRSTR &= ~(1 << 7)); } while(0) /* Set and clear the IOPH RST bit */
+
+/*
  * Clock Enable MACROS for I2C Peripherals
  * */
 

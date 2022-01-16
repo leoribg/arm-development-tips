@@ -20,7 +20,6 @@
  * @Note              -  none
  */
 void GPIO_PeriClockControl(GPIO_RegDef_t *pGPIOx, uint8_t En) {
-
 	if (En == ENABLE) {
 		if (pGPIOx == GPIOA) {
 			GPIOA_PCLK_EN();
@@ -60,6 +59,55 @@ void GPIO_PeriClockControl(GPIO_RegDef_t *pGPIOx, uint8_t En) {
  * @Note              -
  */
 void GPIO_Init(GPIO_Handle_t *pGPIOHandle) {
+	uint32_t temp;
+
+	/* Configure GPIO MODE */
+	if(pGPIOHandle->GPIO_PinConfig.GPIO_PinMode <= GPIO_MODE_ANALOG) {
+		temp = (pGPIOHandle->GPIO_PinConfig.GPIO_PinMode
+				<< (2 * pGPIOHandle->GPIO_PinConfig.GPIO_PinNumber)); // Multiply by 2 * pinNumber because each pin takes 2 bits of configuration in the register
+		pGPIOHandle->pGPIOx->MODER &= ~(0x03 << (2 * pGPIOHandle->GPIO_PinConfig.GPIO_PinNumber));
+		pGPIOHandle->pGPIOx->MODER |= temp;
+	}
+	else {
+
+	}
+
+	temp = 0;
+
+	/* Configure GPIO SPEED */
+	temp = (pGPIOHandle->GPIO_PinConfig.GPIO_PinSpeed
+			<< (2 * pGPIOHandle->GPIO_PinConfig.GPIO_PinNumber)); // Multiply by 2 * pinNumber because each pin takes 2 bits of configuration in the register
+	pGPIOHandle->pGPIOx->OSPEEDR &= ~(0x03 << (2 * pGPIOHandle->GPIO_PinConfig.GPIO_PinNumber));
+	pGPIOHandle->pGPIOx->OSPEEDR |= temp;
+
+	temp = 0;
+
+	/* Configure GPIO PULL UP/DOWN */
+	temp = (pGPIOHandle->GPIO_PinConfig.GPIO_PinPuPdControl
+			<< (2 * pGPIOHandle->GPIO_PinConfig.GPIO_PinNumber)); // Multiply by 2 * pinNumber because each pin takes 2 bits of configuration in the register
+	pGPIOHandle->pGPIOx->PUPDR &= ~(0x03 << (2* pGPIOHandle->GPIO_PinConfig.GPIO_PinNumber));
+	pGPIOHandle->pGPIOx->PUPDR |= temp;
+
+	temp = 0;
+
+	/* Configure GPIO OUTPUT TYPE */
+	temp = (pGPIOHandle->GPIO_PinConfig.GPIO_PinOPType
+			<< (pGPIOHandle->GPIO_PinConfig.GPIO_PinNumber)); // each pin takes 1 bit of configuration in the register
+	pGPIOHandle->pGPIOx->OTYPER &= ~(0x01 << (pGPIOHandle->GPIO_PinConfig.GPIO_PinNumber));
+	pGPIOHandle->pGPIOx->OTYPER |= temp;
+
+	/* Configure GPIO ALTERNATE FUNCTIONALITY */
+	if (pGPIOHandle->GPIO_PinConfig.GPIO_PinMode <= GPIO_MODE_ALTERNATE) {
+		uint8_t temp1, temp2;
+
+		temp1 = pGPIOHandle->GPIO_PinConfig.GPIO_PinNumber / 8;
+		temp2 = pGPIOHandle->GPIO_PinConfig.GPIO_PinNumber % 8;
+		pGPIOHandle->pGPIOx->AFR[temp1] |= (0x0F << (4 * temp2));
+		pGPIOHandle->pGPIOx->AFR[temp1] |=
+				(pGPIOHandle->GPIO_PinConfig.GPIO_PinAltFunMode << (4 * temp2)); // Multiply by 4 * pinNumber because each pin takes 4 bits of configuration in the register
+
+	}
+}
 
 /*********************************************************************
  * @fn      		  - GPIO_DeInit
@@ -68,9 +116,20 @@ void GPIO_Init(GPIO_Handle_t *pGPIOHandle) {
  *
  * @Note              -
  */
-}
 void GPIO_DeInit(GPIO_RegDef_t *pGPIOx) {
-
+	if (pGPIOx == GPIOA) {
+		GPIOA_REG_RESET();
+	} else if (pGPIOx == GPIOB) {
+		GPIOA_REG_RESET();
+	} else if (pGPIOx == GPIOC) {
+		GPIOA_REG_RESET();
+	} else if (pGPIOx == GPIOD) {
+		GPIOA_REG_RESET();
+	} else if (pGPIOx == GPIOE) {
+		GPIOA_REG_RESET();
+	} else if (pGPIOx == GPIOH) {
+		GPIOA_REG_RESET();
+	}
 }
 
 /*********************************************************************
@@ -86,7 +145,11 @@ void GPIO_DeInit(GPIO_RegDef_t *pGPIOx) {
  * @Note              -
  */
 uint8_t GPIO_ReadFromInputPin(GPIO_RegDef_t *pGPIOx, uint8_t PinNumber) {
+	uint8_t value;
 
+	value = (uint8_t)((pGPIOx->IDR >> PinNumber) & 0x01);
+
+	return value;
 }
 
 /*********************************************************************
@@ -101,7 +164,11 @@ uint8_t GPIO_ReadFromInputPin(GPIO_RegDef_t *pGPIOx, uint8_t PinNumber) {
  * @Note              -
  */
 uint16_t GPIO_ReadFromInputPort(GPIO_RegDef_t *pGPIOx) {
+	uint16_t value;
 
+	value = (uint16_t)pGPIOx->IDR;
+
+	return value;
 }
 
 /*********************************************************************
