@@ -11,6 +11,25 @@
 #include <stdint.h>
 
 /*
+ * Cortex-M0 Specific Registers
+ * */
+#define NVIC_ISER					(volatile uint32_t *)0xE000E100
+#define NVIC_ICER					(volatile uint32_t *)0xE000E180
+#define NVIC_ISPR					(volatile uint32_t *)0xE000E200
+#define NVIC_ICPR					(volatile uint32_t *)0xE000E280
+
+#define NVIC_IPRO0					(volatile uint32_t *)0xE000E400
+#define NVIC_IPRO1					(volatile uint32_t *)0xE000E404
+#define NVIC_IPRO2					(volatile uint32_t *)0xE000E408
+#define NVIC_IPRO3					(volatile uint32_t *)0xE000E40C
+#define NVIC_IPRO4					(volatile uint32_t *)0xE000E410
+#define NVIC_IPRO5					(volatile uint32_t *)0xE000E414
+#define NVIC_IPRO6					(volatile uint32_t *)0xE000E418
+#define NVIC_IPRO7					(volatile uint32_t *)0xE000E41C
+
+#define NO_PRIO_BITS_IMPLEMENTED	(2)
+
+/*
  *
  * */
 #define FLASH_BASEADDR			0x08000000U			// Section 3.3.1 NVM organization of Reference Manual (page 67)
@@ -127,6 +146,22 @@ typedef struct {
 	volatile uint32_t CSR; 			/* Control/status register */
 } RCC_RegDef_t;
 
+typedef struct {
+	volatile uint32_t IMR;			/* EXTI interrupt mask register */
+	volatile uint32_t EMR;			/* EXTI event mask register */
+	volatile uint32_t RTSR;			/* EXTI rising edge trigger selection register */
+	volatile uint32_t FTSR;			/* Falling edge trigger selection register */
+	volatile uint32_t SWIER;		/* EXTI software interrupt event register */
+	volatile uint32_t PR;			/* EXTI pending register */
+} EXTI_RegDef_t;
+
+typedef struct {
+	volatile uint32_t CFGR1;		/* SYSCFG memory remap register */
+	volatile uint32_t CFGR2;		/* SYSCFG peripheral mode configuration register */
+	volatile uint32_t EXTICR[4];	/* SYSCFG external interrupt configuration register */
+	volatile uint32_t CFGR3;		/* Reference control and status register */
+} SYSCFG_RegDef_t;
+
 /*
  * Peripheral Definitions
  * */
@@ -139,6 +174,10 @@ typedef struct {
 #define GPIOH	((GPIO_RegDef_t *)GPIOH_BASEADDR)
 
 #define RCC		((RCC_RegDef_t *)RCC_BASEADDR)
+
+#define EXTI	((EXTI_RegDef_t *)EXTI_BASEADDR)
+
+#define SYSCFG	((SYSCFG_RegDef_t *)SYSCFG_BASEADDR)
 
 /*
  * Clock Enable MACROS for GPIO Peripherals
@@ -169,6 +208,24 @@ typedef struct {
 #define	GPIOH_REG_RESET()		do{ (RCC->IOPRSTR |= (1 << 7)); (RCC->IOPRSTR &= ~(1 << 7)); } while(0) /* Set and clear the IOPH RST bit */
 
 /*
+ * Returns port code based on given GPIO Base Address
+ * */
+#define GPIO_BASEADDR_TO_CODE(x)		((x == GPIOA) ? 0 :\
+										(x == GPIOB) ? 1 :\
+										(x == GPIOC) ? 2 :\
+										(x == GPIOD) ? 3 :\
+										(x == GPIOE) ? 4 :\
+										(x == GPIOH) ? 5 : 0)
+
+/*
+ * IRQ Numbers
+ * */
+#define IRQ_NO_EXTI0_1					5
+#define IRQ_NO_EXTI2_3					6
+#define IRQ_NO_EXTI4_15					7
+
+
+/*
  * Clock Enable MACROS for I2C Peripherals
  * */
 
@@ -179,6 +236,11 @@ typedef struct {
 #define	I2C1_PCLK_DI()		(RCC->APB1ENR &= ~(1 << 21)) /* Clear the I2C1EN bit */
 #define	I2C2_PCLK_DI()		(RCC->APB1ENR &= ~(1 << 22)) /* Clear the I2C2EN bit */
 #define	I2C3_PCLK_DI()		(RCC->APB1ENR &= ~(1 << 30)) /* Clear the I2C3EN bit */
+
+/*
+ * Clock Enable MACROS for SYSCFG Peripheral
+ * */
+#define	SYSCFG_PCLK_EN()		(RCC->APB2ENR |= (1 << 0)) /* Set the SYSCFEN bit */
 
 /*
  * Generic MACROS

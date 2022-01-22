@@ -69,7 +69,34 @@ void GPIO_Init(GPIO_Handle_t *pGPIOHandle) {
 		pGPIOHandle->pGPIOx->MODER |= temp;
 	}
 	else {
+		/* Configuring the pin as INPUT MODE */
+		temp = (GPIO_MODE_INPUT << (2 * pGPIOHandle->GPIO_PinConfig.GPIO_PinNumber)); // Multiply by 2 * pinNumber because each pin takes 2 bits of configuration in the register
+				pGPIOHandle->pGPIOx->MODER &= ~(0x03 << (2 * pGPIOHandle->GPIO_PinConfig.GPIO_PinNumber));
+				pGPIOHandle->pGPIOx->MODER |= temp;
+		if (pGPIOHandle->GPIO_PinConfig.GPIO_PinMode == GPIO_MODE_IT_FT) {
+			/* Configure the Falling Trigger Selection Register (FTSR) */
+			EXTI->FTSR |= (1 << pGPIOHandle->GPIO_PinConfig.GPIO_PinNumber);
+			EXTI->RTSR &= ~(1 << pGPIOHandle->GPIO_PinConfig.GPIO_PinNumber);
+		} else if (pGPIOHandle->GPIO_PinConfig.GPIO_PinMode == GPIO_MODE_IT_RT) {
+			/* Configure the Rising Trigger Selection Register (RTSR) */
+			EXTI->RTSR |= (1 << pGPIOHandle->GPIO_PinConfig.GPIO_PinNumber);
+			EXTI->FTSR &= ~(1 << pGPIOHandle->GPIO_PinConfig.GPIO_PinNumber);
+		} else if (pGPIOHandle->GPIO_PinConfig.GPIO_PinMode == GPIO_MODE_IT_FR) {
+			/* Configure both Falling and Rising Trigger Selection Register (FTSR and RTSR) */
+			EXTI->FTSR |= (1 << pGPIOHandle->GPIO_PinConfig.GPIO_PinNumber);
+			EXTI->RTSR |= (1 << pGPIOHandle->GPIO_PinConfig.GPIO_PinNumber);
+		}
+		/* Configure the GPIO port selection in SYSCFG_EXTICR */
+		uint8_t index = (pGPIOHandle->GPIO_PinConfig.GPIO_PinNumber) / 4; // Because each EXTICR register configures 4 pins
+		uint8_t position = ((pGPIOHandle->GPIO_PinConfig.GPIO_PinNumber) % 4) * 4;
+		uint8_t port_code = GPIO_BASEADDR_TO_CODE(pGPIOHandle->pGPIOx);
 
+		SYSCFG_PCLK_EN();
+
+		SYSCFG->EXTICR[index] = port_code << (position);
+
+		/* Enable the EXTI interrupt delivery (IMR) */
+		EXTI->IMR |= (1 << pGPIOHandle->GPIO_PinConfig.GPIO_PinNumber);
 	}
 
 	temp = 0;
@@ -97,7 +124,7 @@ void GPIO_Init(GPIO_Handle_t *pGPIOHandle) {
 	pGPIOHandle->pGPIOx->OTYPER |= temp;
 
 	/* Configure GPIO ALTERNATE FUNCTIONALITY */
-	if (pGPIOHandle->GPIO_PinConfig.GPIO_PinMode <= GPIO_MODE_ALTERNATE) {
+	if (pGPIOHandle->GPIO_PinConfig.GPIO_PinMode == GPIO_MODE_ALTERNATE) {
 		uint8_t temp1, temp2;
 
 		temp1 = pGPIOHandle->GPIO_PinConfig.GPIO_PinNumber / 8;
@@ -228,11 +255,44 @@ void GPIO_ToggleOutputPin(GPIO_RegDef_t *pGPIOx, uint8_t PinNumber) {
 }
 
 /*
- * IRQ Configuration and handling
+ * IRQ Interrupt Configuration
  * */
-void GPIO_IRQConfig(uint8_t IRQNumber, uint8_t IRQPriority, uint8_t En) {
+void GPIO_IRQInterruptConfig(uint8_t IRQNumber, uint8_t En) {
+	if (En) {
+		if (IRQNumber <= 31) {
+			/* Configure the ISER register (Cortex™-M0 Devices | Generic User Guide - page 110) */
+			*NVIC_ISER |= (1 << IRQNumber);
+		}
+	}
+	else {
+		if (IRQNumber <= 31) {
+			/* Configure the ISER register (Cortex™-M0 Devices | Generic User Guide - page 110) */
+			*NVIC_ICER |= (1 << IRQNumber);
+		}
+	}
+}
+
+/*
+ * IRQ Interrupt Priority Configuration
+ * */
+void GPIO_IRQPriorityConfig(uint8_t IRQNumber, uint8_t IRQPriority) {
+	uint8_t iprx = IRQNumber / 4;
+	uint8_t iprx_section = (IRQNumber % 4) * 8;
+	uint8_t shift_amount;
+
+	shift_amount = (IRQPriority << (iprx_section))
+			+ (8 - NO_PRIO_BITS_IMPLEMENTED); /* (Cortex™-M0 Devices | Generic User Guide - page 113) */
+
+	*(NVIC_IPRO0 + iprx) |= (IRQPriority << shift_amount);
 
 }
-void GPIO_IRQHandling(uint8_t PinNumber) {
 
+/*
+ * IRQ Interrupt Handling
+ * */
+void GPIO_IRQHandling(uint8_t PinNumber) {
+	/* Clear the EXTI PR Register corresponding to the PinNumber */
+	if(EXTI->PR & ( 1 << PinNumber)) {
+		EXTI->PR |= ( 1 << PinNumber);
+	}
 }
