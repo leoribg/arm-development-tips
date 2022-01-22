@@ -275,13 +275,12 @@ void GPIO_IRQInterruptConfig(uint8_t IRQNumber, uint8_t En) {
 /*
  * IRQ Interrupt Priority Configuration
  * */
-void GPIO_IRQPriorityConfig(uint8_t IRQNumber, uint8_t IRQPriority) {
+void GPIO_IRQPriorityConfig(uint8_t IRQNumber, uint32_t IRQPriority) {
 	uint8_t iprx = IRQNumber / 4;
 	uint8_t iprx_section = (IRQNumber % 4) * 8;
 	uint8_t shift_amount;
 
-	shift_amount = (IRQPriority << (iprx_section))
-			+ (8 - NO_PRIO_BITS_IMPLEMENTED); /* (Cortex™-M0 Devices | Generic User Guide - page 113) */
+	shift_amount = iprx_section + (8 - NO_PRIO_BITS_IMPLEMENTED); /* (Cortex™-M0 Devices | Generic User Guide - page 113) */
 
 	*(NVIC_IPRO0 + iprx) |= (IRQPriority << shift_amount);
 
