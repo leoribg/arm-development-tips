@@ -30,7 +30,7 @@
 #define NO_PRIO_BITS_IMPLEMENTED	(2)
 
 /*
- *
+ * Memory Base Addresses
  * */
 #define FLASH_BASEADDR			0x08000000U			// Section 3.3.1 NVM organization of Reference Manual (page 67)
 #define SRAM_BASEADDR			0x20000000U			// Section 2.3 Embedded SRAM of Reference Manual (page 64)
@@ -122,6 +122,20 @@ typedef struct {
 	volatile uint32_t AFR[2]; 	/* GPIO alternate function low and high registers */
 } GPIO_RegDef_t;
 
+
+typedef struct
+{
+	volatile uint32_t CR1;        	/*!< SPI control register 1 (SPI_CR1) (not used in I2S mode) Address offset: 0x00 */
+	volatile uint32_t CR2;        	/*!< SPI control register 2 (SPI_CR2) Address offset: 0x04 */
+	volatile uint32_t SR;         	/*!< SPI status register (SPI_SR) Address offset: 0x08 */
+	volatile uint32_t DR;         	/*!< SPI data register (SPI_DR) Address offset: 0x0C */
+	volatile uint32_t CRCPR;      	/*!< SPI CRC polynomial register (SPI_CRCPR) (not used in I2S mode) Address offset: 0x10 */
+	volatile uint32_t RXCRCR;     	/*!< SPI RX CRC register (SPI_RXCRCR) (not used in I2S mode) Address offset: 0x14 */
+	volatile uint32_t TXCRCR;     	/*!< SPI TX CRC register (SPI_TXCRCR) (not used in I2S mode) Address offset: 0x18 */
+	volatile uint32_t I2SCFGR;    	/*!< SPI_I2S configuration register (SPI_I2SCFGR) Address offset: 0x1C */
+	volatile uint32_t I2SPR;      	/*!< SPI_I2S prescaler register (SPI_I2SPR) Address offset: 0x20 */
+} SPI_RegDef_t;
+
 typedef struct {
 	volatile uint32_t CR;			/* Clock control register */
 	volatile uint32_t ICSCR;		/* Internal clock sources calibration register */
@@ -179,6 +193,9 @@ typedef struct {
 
 #define SYSCFG	((SYSCFG_RegDef_t *)SYSCFG_BASEADDR)
 
+#define SPI1	((SPI_RegDef_t *)SPI1_BASEADDR)
+#define SPI2	((SPI_RegDef_t *)SPI2_BASEADDR)
+
 /*
  * Clock Enable MACROS for GPIO Peripherals
  * */
@@ -220,9 +237,9 @@ typedef struct {
 /*
  * IRQ Numbers
  * */
-#define IRQ_NO_EXTI0_1					5
-#define IRQ_NO_EXTI2_3					6
-#define IRQ_NO_EXTI4_15					7
+#define IRQ_NO_EXTI0_1					5		/* Table 55. List of vectors of Reference Manual (page 290) */
+#define IRQ_NO_EXTI2_3					6		/* Table 55. List of vectors of Reference Manual (page 290) */
+#define IRQ_NO_EXTI4_15					7		/* Table 55. List of vectors of Reference Manual (page 290) */
 
 
 /*
@@ -236,6 +253,22 @@ typedef struct {
 #define	I2C1_PCLK_DI()		(RCC->APB1ENR &= ~(1 << 21)) /* Clear the I2C1EN bit */
 #define	I2C2_PCLK_DI()		(RCC->APB1ENR &= ~(1 << 22)) /* Clear the I2C2EN bit */
 #define	I2C3_PCLK_DI()		(RCC->APB1ENR &= ~(1 << 30)) /* Clear the I2C3EN bit */
+
+/*
+ * Clock Enable MACROS for SPI Peripherals
+ * */
+
+#define	SPI1_PCLK_EN()		(RCC->APB2ENR |= (1 << 12)) /* Set the SPI1EN bit */
+#define	SPI2_PCLK_EN()		(RCC->APB1ENR |= (1 << 14)) /* Set the SPI2EN bit */
+
+#define	SPI1_PCLK_DI()		(RCC->APB2ENR &= ~(1 << 12)) /* Clear the SPI1EN bit */
+#define	SPI2_PCLK_DI()		(RCC->APB1ENR &= ~(1 << 14)) /* Clear the SPI2EN bit */
+
+/*
+ * MACROS for SPI Reset Peripherals
+ * */
+#define	SPI1_REG_RESET()		do{ (RCC->APB2RSTR |= (12 << 0)); (RCC->APB2RSTR &= ~(12 << 0)); } while(0) /* Set and clear the SPI1 RST bit */
+#define	SPI2_REG_RESET()		do{ (RCC->APB1RSTR |= (14 << 1)); (RCC->APB1RSTR &= ~(14 << 1)); } while(0) /* Set and clear the SPI2 RST bit */
 
 /*
  * Clock Enable MACROS for SYSCFG Peripheral
