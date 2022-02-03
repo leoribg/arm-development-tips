@@ -50,7 +50,7 @@ void SPI_Init(SPI_Handle_t *pSPIHandle) {
 
 	/* Configure the SPI CR1 Register */
 	/* SPI_DeviceMode */
-	temp  = pSPIHandle->SPI_Config.SPI_DeviceMode << SPI_CR1_MSTR_BIT;
+	temp  = pSPIHandle->SPI_Config.SPI_DeviceMode << SPI_CR1_MSTR;
 
 	/* SPI_BusConfig */
 	if(pSPIHandle->SPI_Config.SPI_BusConfig == SPI_BUS_CONFIG_FD) {
@@ -86,10 +86,82 @@ void SPI_Init(SPI_Handle_t *pSPIHandle) {
 	pSPIHandle->pSPIx->CR1 = temp;
 }
 
+/*********************************************************************
+ * @fn      		  - SPI_DeInit
+ *
+ * @brief             -
+ *
+ * @param[in]         - Pointer to the SPI register
+ *
+ * @Note              -
+ */
 void SPI_DeInit(SPI_RegDef_t *pSPIx) {
 	if (pSPIx == SPI1) {
 		SPI1_REG_RESET();
 	} else if (pSPIx == SPI2) {
 		SPI2_REG_RESET();
 	}
+}
+
+/*********************************************************************
+ * @fn      		  - SPI_GetFlagStatus
+ *
+ * @brief             -
+ *
+ * @param[in]         - Pointer to the SPI register
+ * @param[in]         - Bit field of the flag in SR
+ *
+ * @Note              -
+ */
+uint8_t SPI_GetFlagStatus(SPI_RegDef_t *pSPIx, uint32_t Flag) {
+	if(pSPIx->SR & (1 << Flag)) {
+		return SET;
+	}
+	return CLEAR;
+}
+
+/*********************************************************************
+ * @fn      		  - SPI_sendData
+ *
+ * @brief             -
+ *
+ * @param[in]         - Pointer to the SPI register
+ * @param[in]         - Pointer to the Tx buffer
+ * @param[in]         - Number of bytes to be transmitted
+ *
+ * @Note              -
+ */
+void SPI_sendData(SPI_RegDef_t *pSPIx, uint8_t *pTxBuffer, uint32_t Len) {
+	while (Len > 0) {
+		/* Wait until TXE is set (TX buffer is empty) */
+		while (SPI_GetFlagStatus(pSPIx, SPI_SR_TXE) == CLEAR) {
+			/* Check DFF */
+			if ((pSPIx->CR1 & (1 << SPI_CR1_DFF))) {
+				/* 16 bit DFF */
+				pSPIx->DR = *((uint16_t*) pTxBuffer);
+				Len -= 2;
+				(uint16_t*) pTxBuffer++;
+			} else {
+				/* 8 bit DFF */
+				pSPIx->DR = *pTxBuffer;
+				Len--;
+				pTxBuffer++;
+			}
+		}
+	}
+}
+
+/*********************************************************************
+ * @fn      		  - SPI_receiveData
+ *
+ * @brief             -
+ *
+ * @param[in]         - Pointer to the SPI register
+ * @param[in]         - Pointer to the Rx buffer
+ * @param[in]         - Number of bytes to be received
+ *
+ * @Note              -
+ */
+void SPI_receiveData(SPI_RegDef_t *pSPIx, uint8_t *pRxBuffer, uint32_t Len) {
+
 }

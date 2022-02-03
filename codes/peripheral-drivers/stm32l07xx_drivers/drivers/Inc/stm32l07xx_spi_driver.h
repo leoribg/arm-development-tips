@@ -82,15 +82,24 @@ typedef struct {
 #define SPI_SSM_EN							1
 #define SPI_SSM_DI							0
 
-/* SPI_CR1 Register*/
+/*
+ * SPI_CR1 Register
+ * */
 #define SPI_CR1_CPHA						0
 #define SPI_CR1_CPOL						1
-#define SPI_CR1_MSTR_BIT					2
+#define SPI_CR1_MSTR						2
 #define SPI_CR1_BR							3
 #define SPI_CR1_SSM							9
 #define SPI_CR1_RXONLY						10
 #define SPI_CR1_DFF							11
 #define SPI_CR1_BIDIMODE					15
+
+/*
+ * SPI_SR Register
+ * */
+#define SPI_SR_RXNE							0
+#define SPI_SR_TXE							1
+#define SPI_SR_BSY							7
 
 /*************************************************************************************************************
  *											APIs supported by this driver
