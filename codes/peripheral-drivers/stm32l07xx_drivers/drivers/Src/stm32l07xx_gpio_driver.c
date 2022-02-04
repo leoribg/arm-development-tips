@@ -132,7 +132,7 @@ void GPIO_Init(GPIO_Handle_t *pGPIOHandle) {
 
 		temp1 = pGPIOHandle->GPIO_PinConfig.GPIO_PinNumber / 8;
 		temp2 = pGPIOHandle->GPIO_PinConfig.GPIO_PinNumber % 8;
-		pGPIOHandle->pGPIOx->AFR[temp1] |= (0x0F << (4 * temp2));
+		pGPIOHandle->pGPIOx->AFR[temp1] &= ~(0x0F << (4 * temp2));
 		pGPIOHandle->pGPIOx->AFR[temp1] |=
 				(pGPIOHandle->GPIO_PinConfig.GPIO_PinAltFunMode << (4 * temp2)); // Multiply by 4 * pinNumber because each pin takes 4 bits of configuration in the register
 
