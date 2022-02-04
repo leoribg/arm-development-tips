@@ -45,6 +45,9 @@ void SPI_PeriClockControl(SPI_RegDef_t *pSPIx, uint8_t En) {
 void SPI_Init(SPI_Handle_t *pSPIHandle) {
 	uint32_t temp = 0;
 
+	/* Enable the peripheral clock */
+	SPI_PeriClockControl(pSPIHandle->pSPIx, ENABLE);
+
 	/* peripheral clock enable */
 	SPI_PeriClockControl(pSPIHandle->pSPIx, ENABLE);
 
