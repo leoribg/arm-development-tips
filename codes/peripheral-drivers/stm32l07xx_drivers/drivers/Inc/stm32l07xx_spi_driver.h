@@ -89,6 +89,8 @@ typedef struct {
 #define SPI_CR1_CPOL						1
 #define SPI_CR1_MSTR						2
 #define SPI_CR1_BR							3
+#define SPI_CR1_SPE							6
+#define SPI_CR1_SSI							8
 #define SPI_CR1_SSM							9
 #define SPI_CR1_RXONLY						10
 #define SPI_CR1_DFF							11
@@ -132,7 +134,8 @@ void SPI_IRQHandling(SPI_Handle_t *pSPIHandle);
 /*
  * Other Peripheral Control APIs
  * */
-
+void SPI_PeripheralControl(SPI_RegDef_t *pSPIx, uint8_t En);
+void SPI_SSIConfig(SPI_RegDef_t *pSPIx, uint8_t En);
 
 
 #endif /* INC_STM32L07XX_SPI_DRIVER_H_ */

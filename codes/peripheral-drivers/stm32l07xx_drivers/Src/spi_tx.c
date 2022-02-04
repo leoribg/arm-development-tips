@@ -27,7 +27,13 @@ int main (void) {
 
 	SPI1_init();
 
+	SPI_SSIConfig(SPI1, SET);
+
+	SPI_PeripheralControl(SPI1, ENABLE);
+
 	SPI_sendData(SPI1, (uint8_t *)user_data, strlen(user_data));
+
+	while(1);
 
 	return 0;
 }

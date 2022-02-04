@@ -137,19 +137,19 @@ uint8_t SPI_GetFlagStatus(SPI_RegDef_t *pSPIx, uint32_t Flag) {
 void SPI_sendData(SPI_RegDef_t *pSPIx, uint8_t *pTxBuffer, uint32_t Len) {
 	while (Len > 0) {
 		/* Wait until TXE is set (TX buffer is empty) */
-		while (SPI_GetFlagStatus(pSPIx, SPI_SR_TXE) == CLEAR) {
-			/* Check DFF */
-			if ((pSPIx->CR1 & (1 << SPI_CR1_DFF))) {
-				/* 16 bit DFF */
-				pSPIx->DR = *((uint16_t*) pTxBuffer);
-				Len -= 2;
-				(uint16_t*) pTxBuffer++;
-			} else {
-				/* 8 bit DFF */
-				pSPIx->DR = *pTxBuffer;
-				Len--;
-				pTxBuffer++;
-			}
+		while (SPI_GetFlagStatus(pSPIx, SPI_SR_TXE) == CLEAR);
+
+		/* Check DFF */
+		if ((pSPIx->CR1 & (1 << SPI_CR1_DFF))) {
+			/* 16 bit DFF */
+			pSPIx->DR = *((uint16_t*) pTxBuffer);
+			Len -= 2;
+			(uint16_t*) pTxBuffer++;
+		} else {
+			/* 8 bit DFF */
+			pSPIx->DR = *pTxBuffer;
+			Len--;
+			pTxBuffer++;
 		}
 	}
 }
@@ -167,4 +167,42 @@ void SPI_sendData(SPI_RegDef_t *pSPIx, uint8_t *pTxBuffer, uint32_t Len) {
  */
 void SPI_receiveData(SPI_RegDef_t *pSPIx, uint8_t *pRxBuffer, uint32_t Len) {
 
+}
+
+/*********************************************************************
+ * @fn      		  - SPI_PeripheralControl
+ *
+ * @brief             -
+ *
+ * @param[in]         - Pointer to the SPI register
+ * @param[in]         - Enable or disable the peripheral
+ *
+ * @Note              -
+ */
+void SPI_PeripheralControl(SPI_RegDef_t *pSPIx, uint8_t En) {
+	if(En) {
+		pSPIx->CR1 |= (1 << SPI_CR1_SPE);
+	}
+	else {
+		pSPIx->CR1 &= ~(1 << SPI_CR1_SPE);
+	}
+}
+
+/*********************************************************************
+ * @fn      		  - SPI_SSIConfig
+ *
+ * @brief             -
+ *
+ * @param[in]         - Pointer to the SPI register
+ * @param[in]         - Enable or disable the peripheral
+ *
+ * @Note              -
+ */
+void SPI_SSIConfig(SPI_RegDef_t *pSPIx, uint8_t En) {
+	if(En) {
+			pSPIx->CR1 |= (1 << SPI_CR1_SSI);
+		}
+		else {
+			pSPIx->CR1 &= ~(1 << SPI_CR1_SSI);
+		}
 }
