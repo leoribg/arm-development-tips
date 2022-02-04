@@ -33,6 +33,8 @@ int main (void) {
 
 	SPI_sendData(SPI1, (uint8_t *)user_data, strlen(user_data));
 
+	SPI_PeripheralControl(SPI1, DISABLE);
+
 	while(1);
 
 	return 0;
