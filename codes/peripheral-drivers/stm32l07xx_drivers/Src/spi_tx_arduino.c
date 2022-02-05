@@ -10,6 +10,8 @@
 #include "stm32l07xx.h"
 #include "stm32l07xx_spi_driver.h"
 
+uint8_t sendSPI = 0;
+
 /*
  * PA4	SPI1_NSS
  * PA5 	SPI1_SCLK
@@ -17,29 +19,43 @@
  * PA7	SPI1_MOSI
  * */
 
+void GPIO_ButtonInit();
 void SPI_GPIOInits();
 void SPI1_init();
 
-int main (void) {
+int main(void) {
 	const char user_data[] = "Hello World";
+
+	GPIO_ButtonInit();
 
 	SPI_GPIOInits();
 
 	SPI1_init();
 
-	SPI_SSIConfig(SPI1, SET);
+	/*
+	 * Enabling SSOE because SSM is disabled
+	 * */
+	SPI_SSOEConfig(SPI1, ENABLE);
 
-	SPI_PeripheralControl(SPI1, ENABLE);
+	while (1) {
+		if (sendSPI == SET) {
+			sendSPI = DISABLE;
 
-	SPI_sendData(SPI1, (uint8_t *)user_data, strlen(user_data));
+			SPI_PeripheralControl(SPI1, ENABLE);
 
-	/* Check if SPI peripheral is busy before closing it */
-	while (SPI_GetFlagStatus(SPI1, SPI_SR_BSY))
-		;
+			uint8_t dataLen = strlen(user_data);
 
-	SPI_PeripheralControl(SPI1, DISABLE);
+			SPI_sendData(SPI1, &dataLen, sizeof(dataLen));
 
-	while(1);
+			SPI_sendData(SPI1, (uint8_t*) user_data, strlen(user_data));
+
+			/* Check if SPI peripheral is busy before closing it */
+			while (SPI_GetFlagStatus(SPI1, SPI_SR_BSY))
+				;
+
+			SPI_PeripheralControl(SPI1, DISABLE);
+		}
+	}
 
 	return 0;
 }
@@ -49,7 +65,7 @@ void SPI_GPIOInits() {
 
 	SPIPins.pGPIOx = GPIOA;
 	SPIPins.GPIO_PinConfig.GPIO_PinMode = GPIO_MODE_ALTERNATE;
-	SPIPins.GPIO_PinConfig.GPIO_PinAltFunMode = 0; 					/* DataSheet page 57 (Table 17. Alternate functions port A)*/
+	SPIPins.GPIO_PinConfig.GPIO_PinAltFunMode = 0; /* DataSheet page 57 (Table 17. Alternate functions port A)*/
 	SPIPins.GPIO_PinConfig.GPIO_PinOPType = GPIO_OP_TYPE_PP;
 	SPIPins.GPIO_PinConfig.GPIO_PinPuPdControl = GPIO_NO_PUPD;
 	SPIPins.GPIO_PinConfig.GPIO_PinSpeed = GPIO_SPEED_FAST;
@@ -65,7 +81,6 @@ void SPI_GPIOInits() {
 
 	SPIPins.GPIO_PinConfig.GPIO_PinNumber = GPIO_PIN_7;
 	GPIO_Init(&SPIPins);
-
 }
 
 void SPI1_init() {
@@ -78,7 +93,31 @@ void SPI1_init() {
 	SPI1Handle.SPI_Config.SPI_DFF = SPI_DFF_8BITS;
 	SPI1Handle.SPI_Config.SPI_CPOL = SPI_CPOL_LOW;
 	SPI1Handle.SPI_Config.SPI_CPHA = SPI_CPHA_LOW;
-	SPI1Handle.SPI_Config.SPI_SSM = SPI_SSM_EN;
+	SPI1Handle.SPI_Config.SPI_SSM = SPI_SSM_DI;
 
 	SPI_Init(&SPI1Handle);
+}
+
+void GPIO_ButtonInit() {
+	GPIO_Handle_t GPIO_Button;
+	memset(&GPIO_Button, 0x00, sizeof(GPIO_Button));
+
+	GPIO_Button.pGPIOx = GPIOC;
+	GPIO_Button.GPIO_PinConfig.GPIO_PinNumber = GPIO_PIN_13;
+	GPIO_Button.GPIO_PinConfig.GPIO_PinMode = GPIO_MODE_IT_FT;
+	GPIO_Button.GPIO_PinConfig.GPIO_PinSpeed = GPIO_SPEED_FAST;
+	GPIO_Button.GPIO_PinConfig.GPIO_PinPuPdControl = GPIO_PU; /* Because there is a pull up resistor on the board */
+
+	GPIO_Init(&GPIO_Button);
+
+	/*
+	 * 	IRQ Configuration
+	 * */
+	GPIO_IRQPriorityConfig(IRQ_NO_EXTI4_15, 15);
+	GPIO_IRQInterruptConfig(IRQ_NO_EXTI4_15, ENABLE);
+}
+
+void EXTI4_15_IRQHandler(void) {
+	sendSPI = ENABLE;
+	GPIO_IRQHandling(GPIO_PIN_13);
 }

@@ -97,6 +97,11 @@ typedef struct {
 #define SPI_CR1_BIDIMODE					15
 
 /*
+ * SPI_CR2 Register
+ * */
+#define SPI_CR2_SSOE						2
+
+/*
  * SPI_SR Register
  * */
 #define SPI_SR_RXNE							0
@@ -136,6 +141,8 @@ void SPI_IRQHandling(SPI_Handle_t *pSPIHandle);
  * */
 void SPI_PeripheralControl(SPI_RegDef_t *pSPIx, uint8_t En);
 void SPI_SSIConfig(SPI_RegDef_t *pSPIx, uint8_t En);
+void SPI_SSOEConfig(SPI_RegDef_t *pSPIx, uint8_t En);
+uint8_t SPI_GetFlagStatus(SPI_RegDef_t *pSPIx, uint32_t Flag);
 
 
 #endif /* INC_STM32L07XX_SPI_DRIVER_H_ */

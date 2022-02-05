@@ -194,7 +194,7 @@ void SPI_PeripheralControl(SPI_RegDef_t *pSPIx, uint8_t En) {
  * @brief             -
  *
  * @param[in]         - Pointer to the SPI register
- * @param[in]         - Enable or disable the peripheral
+ * @param[in]         - Set or Clear the SSI
  *
  * @Note              -
  */
@@ -204,5 +204,24 @@ void SPI_SSIConfig(SPI_RegDef_t *pSPIx, uint8_t En) {
 		}
 		else {
 			pSPIx->CR1 &= ~(1 << SPI_CR1_SSI);
+		}
+}
+
+/*********************************************************************
+ * @fn      		  - SPI_SSOEConfig
+ *
+ * @brief             -
+ *
+ * @param[in]         - Pointer to the SPI register
+ * @param[in]         - Set or Clear the SSOE
+ *
+ * @Note              -
+ */
+void SPI_SSOEConfig(SPI_RegDef_t *pSPIx, uint8_t En) {
+	if(En) {
+			pSPIx->CR2 |= (1 << SPI_CR2_SSOE);
+		}
+		else {
+			pSPIx->CR2 &= ~(1 << SPI_CR2_SSOE);
 		}
 }
