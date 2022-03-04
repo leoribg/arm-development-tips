@@ -30,7 +30,29 @@ typedef struct {
 typedef struct {
 	SPI_RegDef_t *pSPIx;				/* The base address of the SPIx peripheral */
 	SPI_Config_t SPI_Config;			/* SPIx configuration settings */
+	uint8_t *pTxBuffer;					/* Tx buffer address */
+	uint8_t *pRxBuffer;					/* Rx buffer address */
+	uint32_t TxLen;						/* Tx length */
+	uint32_t RxLen;						/* Rx length */
+	uint8_t TxState;					/* Tx state */
+	uint8_t RxState;					/* Rx state */
 } SPI_Handle_t;
+
+
+/*
+ * SPI Application States
+ * */
+#define SPI_READY							0
+#define SPI_BUSY_IN_RX						1
+#define SPI_BUSY_IN_TX						2
+
+/*
+ * SPI Application Events
+ * */
+#define SPI_EVENT_TX_CMPLT					1
+#define SPI_EVENT_RX_CMPLT					2
+#define SPI_EVENT_OVR_ERR					3
+
 
 /*
  * SPI_DeviceMode
@@ -100,12 +122,16 @@ typedef struct {
  * SPI_CR2 Register
  * */
 #define SPI_CR2_SSOE						2
+#define SPI_CR2_ERRIE						5
+#define SPI_CR2_RXNEIE						6
+#define SPI_CR2_TXEIE						7
 
 /*
  * SPI_SR Register
  * */
 #define SPI_SR_RXNE							0
 #define SPI_SR_TXE							1
+#define SPI_SR_OVR							6
 #define SPI_SR_BSY							7
 
 /*************************************************************************************************************
@@ -127,7 +153,9 @@ void SPI_DeInit(SPI_RegDef_t *pSPIx);
  * Data send and receive
  * */
 void SPI_sendData(SPI_RegDef_t *pSPIx, uint8_t *pTxBuffer, uint32_t Len);
+uint8_t SPI_sendDataIT(SPI_Handle_t *pSPIHandle, uint8_t *pTxBuffer, uint32_t Len);
 void SPI_receiveData(SPI_RegDef_t *pSPIx, uint8_t *pRxBuffer, uint32_t Len);
+uint8_t SPI_receiveDataIT(SPI_Handle_t *pSPIHandle, uint8_t *pRxBuffer, uint32_t Len);
 
 /*
  * IRQ Configuration and ISR Handling
@@ -143,6 +171,12 @@ void SPI_PeripheralControl(SPI_RegDef_t *pSPIx, uint8_t En);
 void SPI_SSIConfig(SPI_RegDef_t *pSPIx, uint8_t En);
 void SPI_SSOEConfig(SPI_RegDef_t *pSPIx, uint8_t En);
 uint8_t SPI_GetFlagStatus(SPI_RegDef_t *pSPIx, uint32_t Flag);
+void SPI_ClearOVRFlag(SPI_RegDef_t *pSPIx);
+void SPI_CloseTransmission(SPI_Handle_t *pSPIHandle);
+void SPI_CloseReception(SPI_Handle_t *pSPIHandle);
+
+/* Application callback */
+void SPI_ApplicationEventCallback(SPI_Handle_t *pSPIHandle, uint8_t AppEvt);
 
 
 #endif /* INC_STM32L07XX_SPI_DRIVER_H_ */
