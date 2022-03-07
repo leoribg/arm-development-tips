@@ -243,8 +243,8 @@ typedef struct {
 #define IRQ_NO_EXTI2_3					6		/* Table 55. List of vectors of Reference Manual (page 290) */
 #define IRQ_NO_EXTI4_15					7		/* Table 55. List of vectors of Reference Manual (page 290) */
 /* SPI */
-#define IRQ_NO_SPI_1					5		/* Table 55. List of vectors of Reference Manual (page 290) SPI1 global interrupt */
-#define IRQ_NO_SPI_2					5		/* Table 55. List of vectors of Reference Manual (page 290) SPI2 global interrupt*/
+#define IRQ_NO_SPI_1					25		/* Table 55. List of vectors of Reference Manual (page 290) SPI1 global interrupt */
+#define IRQ_NO_SPI_2					26		/* Table 55. List of vectors of Reference Manual (page 290) SPI2 global interrupt*/
 
 /*
  * Clock Enable MACROS for I2C Peripherals
