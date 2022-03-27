@@ -53,9 +53,6 @@ void SPI_Init(SPI_Handle_t *pSPIHandle) {
 	/* Enable the peripheral clock */
 	SPI_PeriClockControl(pSPIHandle->pSPIx, ENABLE);
 
-	/* peripheral clock enable */
-	SPI_PeriClockControl(pSPIHandle->pSPIx, ENABLE);
-
 	/* Configure the SPI CR1 Register */
 	/* SPI_DeviceMode */
 	temp  = pSPIHandle->SPI_Config.SPI_DeviceMode << SPI_CR1_MSTR;

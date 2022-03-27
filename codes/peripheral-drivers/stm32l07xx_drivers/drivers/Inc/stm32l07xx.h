@@ -137,6 +137,36 @@ typedef struct
 	volatile uint32_t I2SPR;      	/*!< SPI_I2S prescaler register (SPI_I2SPR) Address offset: 0x20 */
 } SPI_RegDef_t;
 
+typedef struct
+{
+	volatile uint32_t CR1;        	/*!< I2C control register 1 (I2C_CR1) Address offset: 0x00 */
+	volatile uint32_t CR2;        	/*!< I2C control register 2 (I2C_CR2) Address offset: 0x04 */
+	volatile uint32_t OAR1;         /*!< I2C own address 1 register (I2C_OAR1) Address offset: 0x08 */
+	volatile uint32_t OAR2;         /*!< I2C own address 2 register (I2C_OAR2) Address offset: 0x0C */
+	volatile uint32_t TIMINGR;      /*!< I2C timing register (I2C_TIMINGR) Address offset: 0x10 */
+	volatile uint32_t TIMEOUTR;    	/*!< I2C timeout register (I2C_TIMEOUTR) Address offset: 0x14 */
+	volatile uint32_t ISR;     		/*!< I2C interrupt and status register (I2C_ISR) Address offset: 0x18 */
+	volatile uint32_t ICR;    	 	/*!< I2C interrupt clear register (I2C_ICR) Address offset: 0x1C */
+	volatile uint32_t PECR;      	/*!< I2C PEC register (I2C_PECR) Address offset: 0x20 */
+	volatile uint32_t RXDR;      	/*!< I2C receive data register (I2C_RXDR) Address offset: 0x24 */
+	volatile uint32_t TXDR;      	/*!< I2C transmit data register (I2C_TXDR) Address offset: 0x28 */
+} I2C_RegDef_t;
+
+typedef struct
+{
+	volatile uint32_t CR1;        	/*!< USART control register 1 (USART_CR1) Address offset: 0x00 */
+	volatile uint32_t CR2;        	/*!< USART control register 2 (USART_CR2) Address offset: 0x04 */
+	volatile uint32_t CR3;         	/*!< USART control register 3 (USART_CR3) Address offset: 0x08 */
+	volatile uint32_t BRR;         	/*!< USART baud rate register (USART_BRR) Address offset: 0x0C */
+	volatile uint32_t GTPR;      	/*!< USART guard time and prescaler register Address (USART_GTPR) offset: 0x10 */
+	volatile uint32_t RTOR;     	/*!< USART receiver timeout register (USART_RTOR) Address offset: 0x14 */
+	volatile uint32_t RQR;     		/*!< USART request register (USART_RQR) Address offset: 0x18 */
+	volatile uint32_t ISR;    		/*!< USART interrupt and status register (USART_ISR) Address offset: 0x1C */
+	volatile uint32_t ICR;      	/*!< USART interrupt flag clear register (USART_ICR) Address offset: 0x20 */
+	volatile uint32_t RDR;      	/*!< USART receive data register (USART_RDR) Address offset: 0x24 */
+	volatile uint32_t TDR;      	/*!< USART transmit data register (USART_TDR) Address offset: 0x28 */
+} USART_RegDef_t;
+
 typedef struct {
 	volatile uint32_t CR;			/* Clock control register */
 	volatile uint32_t ICSCR;		/* Internal clock sources calibration register */
@@ -196,6 +226,15 @@ typedef struct {
 
 #define SPI1	((SPI_RegDef_t *)SPI1_BASEADDR)
 #define SPI2	((SPI_RegDef_t *)SPI2_BASEADDR)
+
+#define I2C1	((I2C_RegDef_t *)I2C1_BASEADDR)
+#define I2C2	((I2C_RegDef_t *)I2C2_BASEADDR)
+#define I2C3	((I2C_RegDef_t *)I2C3_BASEADDR)
+
+#define USART1	((USART_RegDef_t *)USART1_BASEADDR)
+#define USART2	((USART_RegDef_t *)USART2_BASEADDR)
+#define USART4	((USART_RegDef_t *)USART4_BASEADDR)
+#define USART5	((USART_RegDef_t *)USART5_BASEADDR)
 
 /*
  * Clock Enable MACROS for GPIO Peripherals
@@ -257,6 +296,20 @@ typedef struct {
 #define	I2C1_PCLK_DI()		(RCC->APB1ENR &= ~(1 << 21)) /* Clear the I2C1EN bit */
 #define	I2C2_PCLK_DI()		(RCC->APB1ENR &= ~(1 << 22)) /* Clear the I2C2EN bit */
 #define	I2C3_PCLK_DI()		(RCC->APB1ENR &= ~(1 << 30)) /* Clear the I2C3EN bit */
+
+/*
+ * Clock Enable MACROS for USART Peripherals
+ * */
+
+#define	USART1_PCLK_EN()		(RCC->APB2ENR |= (1 << 14)) /* Set the USART1EN bit */
+#define	USART2_PCLK_EN()		(RCC->APB1ENR |= (1 << 17)) /* Set the USART2EN bit */
+#define	USART4_PCLK_EN()		(RCC->APB1ENR |= (1 << 19)) /* Set the USART4EN bit */
+#define	USART5_PCLK_EN()		(RCC->APB1ENR |= (1 << 20)) /* Set the USART5EN bit */
+
+#define	USART1_PCLK_DI()		(RCC->APB2ENR &= ~(1 << 14)) /* Clear the USART1EN bit */
+#define	USART2_PCLK_DI()		(RCC->APB1ENR &= ~(1 << 17)) /* Clear the USART2EN bit */
+#define	USART4_PCLK_DI()		(RCC->APB1ENR &= ~(1 << 19)) /* Clear the USART4EN bit */
+#define	USART5_PCLK_DI()		(RCC->APB1ENR &= ~(1 << 20)) /* Clear the USART5EN bit */
 
 /*
  * Clock Enable MACROS for SPI Peripherals
