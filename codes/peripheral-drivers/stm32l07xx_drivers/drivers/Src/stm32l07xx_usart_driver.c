@@ -247,6 +247,7 @@ void USART_Init(USART_Handle_t *pUSARTHandle) {
 
 	//Implement the code to configure the baud rate
 	//We will cover this in the lecture. No action required here
+	USART_SetBaudRate(pUSARTHandle->pUSARTx, pUSARTHandle->USART_Config.USART_Baud);
 }
 
 
@@ -271,7 +272,7 @@ void USART_SendData(USART_Handle_t *pUSARTHandle, uint8_t *pTxBuffer, uint32_t L
 
 	uint16_t *pdata;
    //Loop over until "Len" number of bytes are transferred
-	for(uint32_t i = 0 ; i < pUSARTHandle->TxLen; i++)
+	for(uint32_t i = 0 ; i < Len; i++)
 	{
 		//Implement the code to wait until TXE flag is set in the SR
 		while (!USART_GetFlagStatus(pUSARTHandle->pUSARTx, USART_FLAG_TXE));
@@ -456,4 +457,49 @@ uint8_t USART_ReceiveDataIT(USART_Handle_t *pUSARTHandle, uint8_t *pRxBuffer, ui
 	}
 
 	return rxstate;
+}
+
+/*********************************************************************
+ * @fn      		  - USART_SetBaudRate
+ *
+ * @brief             -
+ *
+ * @param[in]         -
+ * @param[in]         -
+ * @param[in]         -
+ *
+ * @return            -
+ */
+void USART_SetBaudRate(USART_RegDef_t *pUSARTx, uint32_t BaudRate) {
+	//Variable to hold the APB clock
+	uint32_t PCLKx;
+	uint32_t usartdiv = 0;
+	uint32_t tempreg = 0;
+
+	PCLKx = 2097000; /* 2.097MHz */
+
+	//Check for OVER8 configuration bit
+	if (pUSARTx->CR1 & (1 << USART_CR1_OVER8)) {
+		//OVER8 = 1 , over sampling by 8
+		usartdiv = PCLKx / BaudRate;
+	} else {
+		//over sampling by 16
+		usartdiv = (2 * PCLKx) / BaudRate;
+	}
+
+	//Calculate the final fractional
+	if (pUSARTx->CR1 & (1 << USART_CR1_OVER8)) {
+		//OVER8 = 1 , over sampling by 8
+		tempreg = usartdiv & 0x07;
+		tempreg = tempreg >> 1;
+		usartdiv |= tempreg;
+	} else {
+		//over sampling by 16
+	}
+
+	//Place the fractional part in appropriate bit position . refer USART_BRR
+	tempreg = usartdiv;
+
+	//copy the value of tempreg in to BRR register
+	pUSARTx->BRR = tempreg;
 }
